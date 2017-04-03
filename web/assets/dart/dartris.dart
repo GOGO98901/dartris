@@ -3,10 +3,12 @@ library dartris;
 import 'dart:html';
 import 'dart:async';
 
+part 'game.dart';
+
 void main() {
-   final CanvasElement canvas = querySelector('#tetris');
-   canvas.focus();
-   scheduleMicrotask(new GameHost(canvas, canvas.getContext('2d')).run);
+    final CanvasElement canvas = querySelector('#tetris');
+    canvas.focus();
+    scheduleMicrotask(new GameHost(canvas, canvas.getContext('2d')).run);
 }
 
 class GameHost {
@@ -17,14 +19,16 @@ class GameHost {
 
     int _lastTimestamp = 0;
 
+    GameRenderer _renderer;
+
     GameHost(this._canvas, this._context) {
         canvas.focus();
+        _renderer = new GameRenderer(width, height);
     }
 
     void run() {
         window.requestAnimationFrame(_gameLoop);
     }
-
 
     void _gameLoop(double _) {
         _update(_getElapsed());
@@ -38,9 +42,12 @@ class GameHost {
         if (_lastTimestamp != 0) elapsed = (time - _lastTimestamp) / 1000.0;
         _lastTimestamp = time;
         return elapsed;
-   }
+    }
 
-   void _update(final double elapsed) {}
+    void _update(final double elapsed) => _renderer.update(elapsed);
 
-   void _render(final CanvasRenderingContext2D ctxx) {}
+    void _render(final CanvasRenderingContext2D ctx) => _renderer.render(ctx);
+
+    int get width => canvas.width;
+    int get height => canvas.height;
 }
