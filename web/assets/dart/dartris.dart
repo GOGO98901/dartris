@@ -1,11 +1,10 @@
 library dartris;
 
-
 import 'dart:html';
 import 'dart:async';
 
 void main() {
-   final CanvasElement canvas = querySelector('tetris');
+   final CanvasElement canvas = querySelector('#tetris');
    canvas.focus();
    scheduleMicrotask(new GameHost(canvas, canvas.getContext('2d')).run);
 }

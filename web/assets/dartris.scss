@@ -1,4 +1,61 @@
-// Main style sheet for the game
-html, body {
+// ----{ VARIABLES }----
+$background-color: #bada55;
 
+// ----{ CANVAS }----
+$canvas-color: #252525;
+$canvas-width: 500px;
+$canvas-height: 700px;
+
+// ----{ STYLESHEET }----
+html, body {
+    background-color: $background-color;
+}
+
+body.wrapper {
+    .panel {
+        width: 75%;
+        height: auto;
+        min-height: $canvas-height;
+        text-align: center;
+        background-color: darken($background-color, 20%);
+        border-radius: 8px;
+        margin: auto;
+        vertical-align: middle;
+        padding: 1em;
+        .side {
+            display: inline-block;
+            width: auto;
+            background-color: darken($background-color, 50%);
+            &.about {
+                width: 350px;
+                text-align: left;
+                padding-right: 1.5em;
+                float: left;
+                .info {
+                    vertical-align: top;
+                    margin: auto;
+                    .title {
+                        text-align: center;
+                        h1 {}
+                        span {
+                            font-size: 1.05em;
+                            display: block;
+                            &.name {
+                                font-size: 1.5em;
+                            }
+                        }
+                    }
+                }
+            }
+            &.game {
+                float: right;
+                canvas {
+                    background-color: $canvas-color;
+                    display: inline-block;
+                    width: $canvas-width;
+                    height: $canvas-height;
+                }
+            }
+        }
+    }
 }
