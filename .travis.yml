@@ -3,8 +3,7 @@ dart:
     - stable
 env:
     global:
-        - GITHUB_REPO: "GOGO98901/dartris"
-        - secure: "w5cUDEYB0IngKnZGOnmcIGnx/19Ss68EbpsbsVQi1Wv64XniLA1kZIlWiCzR7TTxrjG584dw7dticyyLdWKR/GZN+5hx4JInibXvekmC8o2IdeloEw6NSs8YE4T+Ij9B7hcBdjNHYaCK6wvOGEcL1xCEGsx4Dzbtd7vRTaWP2wpNsVBn00rEEfeheuIUlaSX4eBgRUQG7JYEcYnanSLm9Im4K/oTB6q6Vr/6+Z32ksPIzj84JvvAktChgfgZ5BEfv//zPFe6N/tC9apyNbk/9Jn6avwP6Mth8n/cmCa3s++dXOe7DIUmaOfDFmjf7eCeJVxQ9W5exUk0J/KxBLeDOr1BMC7gqxUH+a1dexyfnmmUAGi0Z1jSC+QwsVCacvXq2JtFGNsvpvADe344OGEPNHvkkMUcbbeN+Sy6E5hdW2tENziQKnzeiA8FGAehDII9yWKpe3my9/aUGf0mU6NevQR0/mCQU19Bue68R93+3LtbEzg+DYaT/78VDDWXWNrOvlQkjN38sx2N4RDvPv+EPxR/gUTtupmsGE1p/qg1p5AeAnh8pBnpc7yy6MkOCracrj1GzS6nhQzZTFJzhi9lyIUuioIU4LDLU06uBbryejOzJKsNexoprwG4gK0WOFPKJ71JVvP4LBM7UR+hfgSeacXrI7GHIZgfp9htwZtGe4E="
+        - ENCRYPTION_LABEL: "e850cfe3cd04"
 install:
     - rvm use 2.1 --install --binary --fuzzy
     - gem install sass
