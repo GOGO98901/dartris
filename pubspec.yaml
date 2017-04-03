@@ -1,0 +1,20 @@
+name: dartis
+description: Tetris build in dart
+version: 0.0.1
+homepage: http://github.com/GOGO98901/dartris
+environment:
+  sdk: '>=1.0.0'
+
+dependencies:
+  dart_to_js_script_rewriter: ^1.0.1
+  dart_sass_transformer: any
+  browser: any
+  logging: any
+
+transformers:
+  - dart_to_js_script_rewriter
+  - $dart2js:
+      minify: true
+      commandLineOptions: [--enable-experimental-mirrors]
+  - dart_sass_transformer:
+      style: compressed  
