@@ -8,7 +8,7 @@ REPO=`git config remote.origin.url`
 SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
 SHA=`git rev-parse --verify HEAD`
 
-git config --global user.email "travis@travis-ci.org"
+git config --global user.email "rory@claasen.biz"
 git config --global user.name "Travis CI"
 
 cp README.md build/web
