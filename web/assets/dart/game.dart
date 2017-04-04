@@ -13,12 +13,13 @@ class GameRenderer {
         _states.add(new StateGame(this));
 
         setState(0);
+        setState(1);
     }
 
     void update(final double elapsed) => _currentState.update(elapsed);
 
     void render(final CanvasRenderingContext2D ctx) {
-        ctx..clearRect(0, 0, width, height)..setFillColorRgb(255, 255, 255)..fillRect(0, 0, width, height);
+        ctx.clearRect(0, 0, width, height);
         _currentState.render(ctx);
     }
 
@@ -78,11 +79,30 @@ class StateMenu extends StateBase {
 }
 
 class StateGame extends StateBase {
+    Grid _grid;
+
+    int _gridSquare;
     StateGame(final GameRenderer renderer) : super(renderer) {
-        Grid grid = new Grid();
+        _grid = new Grid();
+        _gridSquare = renderer.width ~/ Grid.width;
     }
 
     void update(final double elapsed) {}
 
-    void render(final CanvasRenderingContext2D ctx) {}
+    void render(final CanvasRenderingContext2D ctx) {
+        ctx.setFillColorRgb(0, 0, 0);
+        for (int x = 0; x < Grid.width; x ++) {
+            for (int y = 0; y < Grid.height; y ++) {
+                int index = grid.array[x][y];
+                if (index == null) continue;
+                Tile tile = Tile.fromIndex(index);
+                RgbColor color = tile.color.toRgbColor();
+                ctx.setFillColorRgb(color.r, color.g, color.b);
+                ctx.fillRect(x * _gridSquare, y * _gridSquare, _gridSquare, _gridSquare);
+                //ctx..rect(x * _gridSquare, y * _gridSquare, _gridSquare, _gridSquare)..stroke();
+            }
+        }
+    }
+
+    Grid get grid => _grid;
 }

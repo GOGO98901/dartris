@@ -1,43 +1,60 @@
 part of dartris;
 
 class Grid {
-    int _width = 10, _height = 20;
+    static const int width = 10, height = 20;
 
     Array2d _grid;
 
     Grid() {
         _grid = new Array2d(width, height);
+        Tile.newFromRGB(255, 0, 0);
+        Tile.newFromRGB(0, 255, 0);
+        Tile.newFromRGB(0, 0, 255);
         Random rand = new Random();
-        for (int x = 0; x < width;x++) {
-            for (int y = 0; y <height;y++) {
-                grid[x][y] = rand.nextInt(10);
-            }
-        }
-        for (int i = 0;i < 5;i++) {
-            log.info(grid);
-            drop();
-        }
-    }
-
-    void drop() {
         for (int x = 0; x < width; x++) {
-            grid[x][height - 1] = null;
-        }
-        for (int x = 0; x > width; x++) {
-            for (int y = height; y > height; y--) {
-                if (y + 1 < grid.height) grid[x][y + 1] = grid[x][y];
-                grid[x][y] = null;
+            for (int y = 0; y < height; y++) {
+                array[x][y] = rand.nextInt(3);
             }
         }
     }
 
-    Array2d get grid => _grid;
+    void drop({int row : (height - 1)}) {
+        for (int x = 0; x < width; x++) {
+            array[x][row] = null;
+        }
+        for (int x = 0; x < width; x++) {
+            for (int y = row - 1; y >= 0; y--) {
+                array[x][y + 1] = array[x][y];
+                array[x][y] = null;
+            }
+        }
+    }
 
-    int get width => _width;
-    int get height => _height;
+    Array2d get array => _grid;
 }
 
 class Tile {
 
-    Tile();
+    static List<Tile> tiles = new List<Tile>();
+
+    static Tile fromIndex(int index) {
+        if (index < 0 || index >= Tile.tiles.length) return null;
+        return tiles[index];
+    }
+
+    static void newFromColor(Color color) {
+        new Tile(color);
+    }
+
+    static void newFromRGB(int red, int green, int blue) {
+        newFromColor(new RgbColor(red, green, blue));
+    }
+
+    Color _color;
+
+    Tile(this._color) {
+        Tile.tiles.add(this);
+    }
+
+    Color get color => _color;
 }

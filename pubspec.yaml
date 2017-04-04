@@ -10,6 +10,7 @@ dependencies:
   dart_sass_transformer: any
   browser: any
   logging: any
+  color: any
 
 transformers:
   - dart_to_js_script_rewriter
@@ -17,4 +18,4 @@ transformers:
       minify: true
       commandLineOptions: [--enable-experimental-mirrors]
   - dart_sass_transformer:
-      style: compressed  
+      style: compressed
