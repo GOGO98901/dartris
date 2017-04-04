@@ -10,6 +10,13 @@ $canvas-color: #252525;
 $canvas-width: 500px;
 $canvas-height: 700px;
 
+// ----{ MIXINS }----
+@mixin box-shadow($top, $left, $blur, $color, $inset:"") {
+	-webkit-box-shadow:$top $left $blur $color #{$inset};
+	-moz-box-shadow:$top $left $blur $color #{$inset};
+	box-shadow:$top $left $blur $color #{$inset};
+}
+
 // ----{ STYLESHEET }----
 @import url('https://fonts.googleapis.com/css?family=Palanquin+Dark:400,700|Slabo+27px');
 
@@ -17,31 +24,30 @@ html, body {
     background-color: $background-color;
     color: $font-color;
     font-family: $font-salabo;
+    text-shadow: 0 1px 0 rgba($font-color, 0.35);
 }
 
 body.wrapper {
-    margin: 1.5em;
-    margin-bottom: 0;
-    // div { display: block; }
-    .panel {
-        text-align: center;
+    text-align: center;
+    padding: 1.1em;
+    canvas {
+        display: block;
+        width: $canvas-width;
+        height: $canvas-height;
+        margin: auto;
+        padding: 1.25em;
+        vertical-align: middle;
         background-color: lighten($background-color, 20%);
         border-radius: 8px;
-        margin: auto;
-        vertical-align: middle;
-        margin: 1.25em 2em;
-        padding: 1em;
-        canvas {
-            background-color: $canvas-color;
-            display: inline-block;
-            width: $canvas-width;
-            height: $canvas-height;
-        }
+        @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.5));
     }
     footer {
-        position: relative;
-        bottom: 0.5em;
-        //left: 0.5em;
+        position: fixed;
+        bottom: 1em;
+        left: 1em;
+        span.license {
+            font-size: 0.85em;
+        }
         a {
             color: $font-color;
             font-family: $font-palanquin;
