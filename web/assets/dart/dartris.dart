@@ -2,10 +2,13 @@ library dartris;
 
 import 'dart:html';
 import 'dart:async';
+import 'dart:math';
 
 import 'package:logging/logging.dart';
 
 part 'game.dart';
+part 'tile.dart';
+part 'util.dart';
 
 final Logger log = new Logger("Dartris");
 

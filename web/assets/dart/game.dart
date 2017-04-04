@@ -25,7 +25,9 @@ class GameRenderer {
     void setState(int id) {
         if (_states != null && id >= 0) {
             if (_states.length > 0 && id < _states.length) {
+                if (_currentState != null) _currentState.onStateLeave();
                 _currentState = _states[id];
+                _currentState.onStateEnter();
                 log.info('Changed state to $_currentState');
             }
         }
@@ -38,16 +40,37 @@ class GameRenderer {
 abstract class StateBase {
     final GameRenderer _renderer;
 
-    StateBase(this._renderer);
+    List<StreamSubscription> _listeners;
+
+    StateBase(this._renderer) {
+        _listeners = new List<StreamSubscription>();
+    }
 
     void update(final double elapsed);
     void render(final CanvasRenderingContext2D ctx);
 
+    void onStateLeave() {
+        listeners.forEach((l) => l.cancel());
+        listeners.clear();
+    }
+
+    void onStateEnter() {}
+
     GameRenderer get renderer => _renderer;
+    List<StreamSubscription> get listeners => _listeners;
 }
 
 class StateMenu extends StateBase {
     StateMenu(final GameRenderer renderer) : super(renderer) {}
+
+    void onStateEnter() {
+        super.onStateEnter();
+        listeners.add(window.onKeyDown.listen((e) {
+            if (e.keyCode == KeyCode.SPACE) {
+                renderer.setState(1);
+            }
+        }));
+    }
 
     void update(final double elapsed) {}
 
@@ -55,7 +78,9 @@ class StateMenu extends StateBase {
 }
 
 class StateGame extends StateBase {
-    StateGame(final GameRenderer renderer) : super(renderer) {}
+    StateGame(final GameRenderer renderer) : super(renderer) {
+        Grid grid = new Grid();
+    }
 
     void update(final double elapsed) {}
 
