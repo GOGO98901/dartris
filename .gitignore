@@ -1,6 +1,4 @@
-# Personal Files
-deploy_key
-deploy_key.pub
+# Personal Ignore
 *.log
 
 # See https://www.dartlang.org/tools/private-files.html

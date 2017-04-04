@@ -1,19 +1,19 @@
 language: dart
 dart:
     - stable
-env:
-    global:
-        - ENCRYPTION_LABEL: "e850cfe3cd04"
 install:
     - rvm use 2.1 --install --binary --fuzzy
     - gem install sass
-script:
     - pub get
+script:
     - pub build --mode=release
+before_deploy:
+    - cp README.md build/web
+    - cp LICENSE build/web/license.txt
 deploy:
     provider: pages
     skip_cleanup: true
-    github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+    github_token: $GITHUB_TOKEN
     local_dir: build/web
     on:
         branch: master
