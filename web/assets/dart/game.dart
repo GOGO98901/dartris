@@ -81,10 +81,11 @@ class StateMenu extends StateBase {
 class StateGame extends StateBase {
     Grid _grid;
 
-    int _gridSquare;
+    int _gW, _gH;
     StateGame(final GameRenderer renderer) : super(renderer) {
         _grid = new Grid();
-        _gridSquare = renderer.width ~/ Grid.width;
+        _gW = renderer.width ~/ Grid.width;
+        _gH = renderer.height ~/ Grid.height;
     }
 
     void update(final double elapsed) {}
@@ -94,14 +95,23 @@ class StateGame extends StateBase {
         for (int x = 0; x < Grid.width; x ++) {
             for (int y = 0; y < Grid.height; y ++) {
                 int index = grid.array[x][y];
-                if (index == null) continue;
-                Tile tile = Tile.fromIndex(index);
-                RgbColor color = tile.color.toRgbColor();
-                ctx.setFillColorRgb(color.r, color.g, color.b);
-                ctx.fillRect(x * _gridSquare, y * _gridSquare, _gridSquare, _gridSquare);
-                //ctx..rect(x * _gridSquare, y * _gridSquare, _gridSquare, _gridSquare)..stroke();
+                Rectangle drawBounds = rectFromCords(x, y);
+                if (index == null) {
+                    ctx..setFillColorRgb(220, 220, 220)
+                    ..fillRect(drawBounds.left, drawBounds.top, drawBounds.width, drawBounds.height);
+                } else {
+                    Tile tile = Tile.fromIndex(index);
+                    RgbColor color = tile.color.toRgbColor();
+                    ctx..setFillColorRgb(color.r, color.g, color.b)
+                    ..fillRect(drawBounds.left, drawBounds.top, drawBounds.width, drawBounds.height);
+                }
             }
         }
+    }
+
+    Rectangle rectFromCords(int x, int y) {
+        int offset = 2;
+        return new  Rectangle(offset + (x * _gW), offset + (y * _gH), _gW - (offset * 2), _gH - (offset * 2));
     }
 
     Grid get grid => _grid;

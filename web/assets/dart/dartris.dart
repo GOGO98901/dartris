@@ -8,7 +8,7 @@ import 'package:logging/logging.dart';
 import 'package:color/color.dart';
 
 part 'game.dart';
-part 'tile.dart';
+part 'grid.dart';
 part 'util.dart';
 
 final Logger log = new Logger("Dartris");

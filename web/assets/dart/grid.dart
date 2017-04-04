@@ -1,7 +1,7 @@
 part of dartris;
 
 class Grid {
-    static const int width = 10, height = 20;
+    static const int width = 10, height = 16;
 
     Array2d _grid;
 
@@ -13,7 +13,7 @@ class Grid {
         Random rand = new Random();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                array[x][y] = rand.nextInt(3);
+                if (rand.nextInt(2) == 0) array[x][y] = rand.nextInt(3);
             }
         }
     }

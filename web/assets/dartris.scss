@@ -8,7 +8,7 @@ $font-salabo: 'Slabo 27px', serif;
 // ----{ CANVAS }----
 $canvas-color: #252525;
 $canvas-width: 480px;
-$canvas-height: 680px;
+$canvas-height: 690px;
 
 // ----{ MIXINS }----
 @mixin box-shadow($top, $left, $blur, $color, $inset:"") {
@@ -35,11 +35,11 @@ body.wrapper {
         width: $canvas-width;
         height: $canvas-height;
         margin: auto;
-        padding: 1.25em;
+        padding: 0.5em;
         vertical-align: middle;
         background-color: lighten($background-color, 20%);
         border-radius: 8px;
-        @include box-shadow(0, 0, 5px, rgba(0, 0, 0, 0.5));
+        @include box-shadow(0, 0, 10px, rgba(0, 0, 0, 0.75));
     }
     footer {
         position: fixed;
