@@ -3,12 +3,23 @@ library dartris;
 import 'dart:html';
 import 'dart:async';
 
+import 'package:logging/logging.dart';
+
 part 'game.dart';
 
+final Logger log = new Logger("Dartris");
+
 void main() {
+    Logger.root.level = Level.ALL;
+	Logger.root.onRecord.listen((LogRecord rec) {
+		print('[${rec.time}][${rec.loggerName}] ${rec.level.name}: ${rec.message}');
+	});
+
     final CanvasElement canvas = querySelector('#tetris');
-    canvas.focus();
-    scheduleMicrotask(new GameHost(canvas, canvas.getContext('2d')).run);
+    if (canvas != null) {
+        canvas.focus();
+        scheduleMicrotask(new GameHost(canvas, canvas.getContext('2d')).run);
+    }
 }
 
 class GameHost {
