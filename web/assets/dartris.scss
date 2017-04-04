@@ -7,8 +7,8 @@ $font-salabo: 'Slabo 27px', serif;
 
 // ----{ CANVAS }----
 $canvas-color: #252525;
-$canvas-width: 500px;
-$canvas-height: 700px;
+$canvas-width: 480px;
+$canvas-height: 680px;
 
 // ----{ MIXINS }----
 @mixin box-shadow($top, $left, $blur, $color, $inset:"") {
