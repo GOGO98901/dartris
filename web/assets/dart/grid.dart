@@ -18,12 +18,55 @@ class Grid {
         Tile.newFromRGB(0, 0, 255);
 
         new Shape(() {
-            Array2d data = new Array2d(2, 4, defaultValue: 0);
+            Array2d data = new Array2d(4, 1, defaultValue: 0);
+            data[0][0] = 1;
             data[1][0] = 1;
+            data[2][0] = 1;
+            data[3][0] = 1;
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(3, 2, defaultValue: 0);
+            data[0][0] = 1;
+            data[1][0] = 1;
+            data[2][0] = 1;
+            data[2][1] = 1;
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(3, 2, defaultValue: 0);
             data[0][0] = 1;
             data[0][1] = 1;
-            data[0][2] = 1;
-            data[0][3] = 1;
+            data[1][0] = 1;
+            data[2][0] = 1;
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(2, 2, defaultValue: 1);
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(3, 2, defaultValue: 0);
+            data[0][1] = 1;
+            data[1][1] = 1;
+            data[1][0] = 1;
+            data[2][0] = 1;
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(3, 2, defaultValue: 0);
+            data[0][0] = 1;
+            data[1][0] = 1;
+            data[2][0] = 1;
+            data[1][1] = 1;
+            return data;
+        });
+        new Shape(() {
+            Array2d data = new Array2d(3, 2, defaultValue: 0);
+            data[0][0] = 1;
+            data[1][1] = 1;
+            data[1][0] = 1;
+            data[2][1] = 1;
             return data;
         });
     }
@@ -33,7 +76,7 @@ class Grid {
         Shape shape = Shape.randomShape();
         int tile = Tile.indexOf(Tile.randomTile());
 
-        int startX = (width - shape.width) ~/ 2;
+        int startX = shape.width * random.nextInt(width ~/ shape.width);
         int startY = 0;
 
         for (int x = 0; x < shape.width; x++) {
@@ -46,6 +89,16 @@ class Grid {
         }
     }
 
+    void checkForRow() {
+        for (int y = 0; y < height; y++) {
+            bool row = true;
+            for (int x = 0; x < width; x++) {
+                if (array[x][y] == null) row = false;
+            }
+            if (row) drop(row: y);
+        }
+    }
+
     bool moveCurrentShape(int xOffset, int yOffset) {
         bool failed = false;
         bool spawn = false;
@@ -54,9 +107,15 @@ class Grid {
             Point n = new Point(p.x + xOffset, p.y + yOffset);
             if (n.y >= height) spawn = failed = true;
             if (n.x < 0 || n.x >= width) failed = true;
-            if (array[n.x][n.y] != null) {
-                // TODO check if tile is in the current shape
-                spawn = failed = true;
+            if (!failed) {
+                if (array[n.x][n.y] != null) {
+                    bool same = false;
+                    currentShape.forEach((p) {
+                        if (p.x == n.x && p.y == n.y) same = true;
+                    });
+                    if (same) continue;
+                    spawn = failed = true;
+                }
             }
             if (failed) break;
         }
