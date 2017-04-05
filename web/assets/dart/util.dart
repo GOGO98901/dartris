@@ -47,3 +47,41 @@ class Array2d<T> {
         return data;
     }
 }
+
+class Util {
+    static List<int> codeToList(var bit, var mask, int offset) {
+        int target = (bit & mask) >> offset;
+        if (target == 0) return [0, 0, 0, 0];
+        int value = 1;
+        bool latch = false;
+        while (value < target) {
+            value *= 2;
+        }
+        String output = "";
+        while (value >= 1) {
+            if (target - value >= 0) {
+                target -= value;
+                output += latch ? "|1" : "1";
+                latch = true;
+            } else if (latch) {
+                output += "|0";
+            }
+            value ~/= 2;
+        }
+        for (int i = output.length; i < 7; i+= 2) {
+            output = "0|" + output;
+        }
+        return stringListToIntList(output.split("|"));
+    }
+
+    static List<int> stringListToIntList(List<String> list) {
+        List<int> intList = new List<int>();
+        for (int i = 0; i < list.length; i++) {
+            intList.add(0);
+            var value = int.parse(list[i]);
+            assert(value is int);
+            intList[i] = value;
+        }
+        return intList;
+    }
+}

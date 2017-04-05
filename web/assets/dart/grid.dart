@@ -5,88 +5,51 @@ class Grid {
 
     static final Random random = new Random();
 
-    Array2d _grid;
+    Array2d<int> _grid;
 
-    List<Point> _currentShape;
+    ShapePosition _shapePos;
+    Shape _currentShape;
+    int _currentShapeRot = 0;
 
     Grid() {
-        _grid = new Array2d(width, height);
-        _currentShape = new List<Point>();
+        _grid = new Array2d<int>(width, height);
 
         Tile.newFromRGB(255, 0, 0);
+        Tile.newFromRGB(255, 255, 0);
         Tile.newFromRGB(0, 255, 0);
         Tile.newFromRGB(0, 0, 255);
+        Tile.newFromRGB(255, 0, 255);
 
-        new Shape(() {
-            Array2d data = new Array2d(4, 1, defaultValue: 0);
-            data[0][0] = 1;
-            data[1][0] = 1;
-            data[2][0] = 1;
-            data[3][0] = 1;
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(3, 2, defaultValue: 0);
-            data[0][0] = 1;
-            data[1][0] = 1;
-            data[2][0] = 1;
-            data[2][1] = 1;
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(3, 2, defaultValue: 0);
-            data[0][0] = 1;
-            data[0][1] = 1;
-            data[1][0] = 1;
-            data[2][0] = 1;
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(2, 2, defaultValue: 1);
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(3, 2, defaultValue: 0);
-            data[0][1] = 1;
-            data[1][1] = 1;
-            data[1][0] = 1;
-            data[2][0] = 1;
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(3, 2, defaultValue: 0);
-            data[0][0] = 1;
-            data[1][0] = 1;
-            data[2][0] = 1;
-            data[1][1] = 1;
-            return data;
-        });
-        new Shape(() {
-            Array2d data = new Array2d(3, 2, defaultValue: 0);
-            data[0][0] = 1;
-            data[1][1] = 1;
-            data[1][0] = 1;
-            data[2][1] = 1;
-            return data;
-        });
+        new Shape([0x0F00, 0x2222, 0x00F0, 0x4444]);
+        new Shape([0x44C0, 0x8E00, 0x6440, 0x0E20]);
+        new Shape([0x4460, 0x0E80, 0xC440, 0x2E00]);
+        new Shape([0xCC00, 0xCC00, 0xCC00, 0xCC00]);
+        new Shape([0x06C0, 0x8C40, 0x6C00, 0x4620]);
+        new Shape([0x0E40, 0x4C40, 0x4E00, 0x4640]);
+        new Shape([0x0C60, 0x4C80, 0xC600, 0x2640]);
     }
 
     void newShape() {
-        currentShape.clear();
-        Shape shape = Shape.randomShape();
+        _shapePos = null;
+        Shape shape = _currentShape = Shape.randomShape();
         int tile = Tile.indexOf(Tile.randomTile());
 
-        int startX = shape.width * random.nextInt(width ~/ shape.width);
+        int startX = (Shape.width ~/ 2) + random.nextInt(width - Shape.width);
         int startY = 0;
 
-        for (int x = 0; x < shape.width; x++) {
-            for (int y = 0; y < shape.height; y++) {
-                if (shape.data[x][y] > 0) {
+        _currentShapeRot = random.nextInt(4);
+        Array2d<int> data = shape.getAsRotation(_currentShapeRot);
+
+        List<Point> positions = new List<Point>();
+        for (int x = 0; x < Shape.width; x++) {
+            for (int y = 0; y < Shape.height; y++) {
+                if (data[x][y] > 0) {
                     array[startX + x][startY + y] = tile;
-                    currentShape.add(new Point(startX + x, startY + y));
+                    positions.add(new Point(startX + x, startY + y));
                 }
             }
         }
+        _shapePos = new ShapePosition(new Point(startX, startY), positions);
     }
 
     void checkForRow() {
@@ -99,9 +62,52 @@ class Grid {
         }
     }
 
+    void rotateShape() {
+        int rotation = _currentShapeRot + 1;
+        if (rotation >= 4) rotation = 0;
+        Array2d<int> newData = _currentShape.getAsRotation(rotation);
+        List<Point> oldData = _shapePos.positions;
+        Point c = _shapePos.corner;
+        bool failed = false;
+        for (int x = c.x; x < newData.width; x++) {
+            for (int y = c.y; y < newData.height; y++) {
+                if (y >= height) failed = true;
+                if (x < 0 || x >= width) failed = true;
+                if (!failed) {
+                    if (array[x][y] != null) {
+                        bool same = false;
+                        oldData.forEach((p) {
+                            if (p.x == x && p.y == y) same = true;
+                        });
+                        if (same) continue;
+                        failed = true;
+                    }
+                }
+            }
+        }
+        log.info(failed);
+        if (!failed) {
+            _currentShapeRot = rotation;
+            Point first = _shapePos.positions.first;
+            int tile = array[first.x][first.y];
+            _shapePos.positions.forEach((p) => array[p.x][p.y] = null);
+            int index = 0;
+
+            for (int x = 0; x < newData.width; x++) {
+                for (int y = 0; y < newData.height; y++) {
+                    if (newData[x][y] > 0) {
+                        array[c.x + x][c.y + y] = tile;
+                        _shapePos.positions[index++] = new Point(c.x + x, c.y + y);
+                    }
+                }
+            }
+        }
+    }
+
     bool moveCurrentShape(int xOffset, int yOffset) {
         bool failed = false;
         bool spawn = false;
+        List<Point> currentShape = _shapePos.positions;
         for (int i = 0; i < currentShape.length; i++) {
             Point p = currentShape[i];
             Point n = new Point(p.x + xOffset, p.y + yOffset);
@@ -129,6 +135,9 @@ class Grid {
                 array[n.x][n.y] = tile;
                 currentShape[i] = n;
             }
+            _shapePos.positions = currentShape;
+            Point c = _shapePos.corner;
+            _shapePos.corner = new Point(c.x + xOffset, c.y + yOffset);
         }
         return spawn;
     }
@@ -145,8 +154,7 @@ class Grid {
         }
     }
 
-    List<Point> get currentShape => _currentShape;
-    Array2d get array => _grid;
+    Array2d<int> get array => _grid;
 }
 
 class Tile {
@@ -183,8 +191,6 @@ class Tile {
     Color get color => _color;
 }
 
-typedef Array2d ShapeData();
-
 class Shape {
 
     static List<Shape> shapes = new List<Shape>();
@@ -198,15 +204,46 @@ class Shape {
         return Shape.fromIndex(Grid.random.nextInt(Shape.shapes.length));
     }
 
-    Array2d _data;
+    static const width = 4, height = 4;
 
-    Shape(ShapeData data) {
-        _data = data();
+    static final List<Object> masks = [0xF000, 0x0F00, 0x00F0, 0x000F];
+    static final List<int> shift = [12, 8, 4, 0];
+
+    List<Object> _bits;
+
+    Shape(this._bits) {
         Shape.shapes.add(this);
     }
 
-    int get width => _data.width;
-    int get height => _data.height;
+    Array2d<int> getAsRotation(int rotation) {
+        Array2d<int> data = new Array2d<int>(width, height, defaultValue: 0);
+        for (int y = 0; y < height; y++) {
+            List<int> row = Util.codeToList(_bits[rotation], masks[y], shift[y]);
+            for (int x = 0; x < width; x++) {
+                data[x][y] = row[x];
+            }
+        }
+        return data;
+    }
 
-    Array2d get data => _data;
+    List<Object> get bits => _bits;
+}
+
+class ShapePosition {
+    Point _cornerPos;
+    List<Point> _currentShapePos;
+
+    ShapePosition(this._cornerPos, this._currentShapePos);
+
+    List<Point> get positions => _currentShapePos;
+
+    void set positions(List<Point> position) {
+        _currentShapePos = position;
+    }
+
+    Point get corner => _cornerPos;
+
+    void set corner(Point corner) {
+        _cornerPos = corner;
+    }
 }

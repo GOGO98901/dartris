@@ -96,7 +96,7 @@ class StateGame extends StateBase {
     void update(final double elapsed) {
         if (running) {
             _time += elapsed;
-            if (_time > 1) {
+            if (time > 1) {
                 _time = 0.0;
                 if (grid.moveCurrentShape(0, 1)) {
                     grid.checkForRow();
@@ -133,11 +133,15 @@ class StateGame extends StateBase {
     void onStateEnter() {
         super.onStateEnter();
         listeners.add(window.onKeyDown.listen((e) {
-            if (e.keyCode == KeyCode.A || e.keyCode == KeyCode.LEFT) grid.moveCurrentShape(-1, 0);
-            if (e.keyCode == KeyCode.D || e.keyCode == KeyCode.RIGHT) grid.moveCurrentShape(1, 0);
-            if (e.keyCode == KeyCode.S || e.keyCode == KeyCode.DOWN) grid.moveCurrentShape(0, 1);
-            if (e.keyCode == KeyCode.W || e.keyCode == KeyCode.UP) {
-                // TODO Rotation
+            bool placed = false;
+            if (e.keyCode == KeyCode.A || e.keyCode == KeyCode.LEFT) placed = grid.moveCurrentShape(-1, 0);
+            if (e.keyCode == KeyCode.D || e.keyCode == KeyCode.RIGHT) placed = grid.moveCurrentShape(1, 0);
+            if (e.keyCode == KeyCode.S || e.keyCode == KeyCode.DOWN) placed = grid.moveCurrentShape(0, 1);
+            if (e.keyCode == KeyCode.W || e.keyCode == KeyCode.UP) grid.rotateShape();
+
+            if (placed) {
+                if (time < 0.5) _time = 0.8;
+                else _time += 0.25;
             }
         }));
         running = true;
