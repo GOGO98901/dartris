@@ -82,13 +82,28 @@ class StateGame extends StateBase {
     Grid _grid;
 
     int _gW, _gH;
+
+    bool _running = false;
+
+    double _time = 0.0;
+
     StateGame(final GameRenderer renderer) : super(renderer) {
         _grid = new Grid();
         _gW = renderer.width ~/ Grid.width;
         _gH = renderer.height ~/ Grid.height;
     }
 
-    void update(final double elapsed) {}
+    void update(final double elapsed) {
+        if (running) {
+            _time += elapsed;
+            if (_time > 1) {
+                _time = 0.0;
+                if (grid.moveCurrentShape(0, 1)) {
+                    grid.newShape();
+                }
+            }
+        }
+    }
 
     void render(final CanvasRenderingContext2D ctx) {
         ctx.setFillColorRgb(0, 0, 0);
@@ -113,6 +128,19 @@ class StateGame extends StateBase {
         int offset = 2;
         return new  Rectangle(offset + (x * _gW), offset + (y * _gH), _gW - (offset * 2), _gH - (offset * 2));
     }
+
+    void onStateEnter() {
+        super.onStateEnter();
+        running = true;
+        grid.newShape();
+    }
+
+    bool get running => _running;
+    void set running(bool var1) {
+        this._running = var1;
+    }
+
+    double get time => _time;
 
     Grid get grid => _grid;
 }
