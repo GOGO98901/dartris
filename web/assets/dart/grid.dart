@@ -69,15 +69,15 @@ class Grid {
         List<Point> oldData = _shapePos.positions;
         Point c = _shapePos.corner;
         bool failed = false;
-        for (int x = c.x; x < newData.width; x++) {
-            for (int y = c.y; y < newData.height; y++) {
-                if (y >= height) failed = true;
-                if (x < 0 || x >= width) failed = true;
+        for (int x = 0; x < newData.width; x++) {
+            for (int y = 0; y < newData.height; y++) {
+                if (c.y + y >= height) failed = true;
+                if (c.x + x < 0 || c.x + x >= width) failed = true;
                 if (!failed) {
-                    if (array[x][y] != null) {
+                    if (array[c.x + x][c.x + y] != null) {
                         bool same = false;
                         oldData.forEach((p) {
-                            if (p.x == x && p.y == y) same = true;
+                            if (p.x == c.x + x && p.y == c.y + y) same = true;
                         });
                         if (same) continue;
                         failed = true;
