@@ -7,13 +7,17 @@ class GameRenderer {
     List<StateBase> _states;
     StateBase _currentState;
 
+    ShapeManager _shapeManager;
+
     GameRenderer(this._width, this._height) {
+        _shapeManager = new ShapeManager();
+
         _states = new List<StateBase>();
         _states.add(new StateMenu(this));
         _states.add(new StateGame(this));
 
         setState(0);
-        setState(1);
+        setState(1); // TEMP
     }
 
     void update(final double elapsed) => _currentState.update(elapsed);
@@ -33,6 +37,8 @@ class GameRenderer {
             }
         }
     }
+
+    ShapeManager get shapeManager => _shapeManager;
 
     int get width => _width;
     int get height => _height;
@@ -98,9 +104,11 @@ class StateGame extends StateBase {
             _time += elapsed;
             if (time > 1) {
                 _time = 0.0;
-                if (grid.moveCurrentShape(0, 1)) {
+                MoveStage result = grid.moveCurrentShape(0, 1);
+                log.info(result);
+                if (result == MoveStage.SPAWN) {
                     grid.checkForRow();
-                    grid.newShape();
+                    newShape();
                 }
             }
         }
@@ -125,6 +133,14 @@ class StateGame extends StateBase {
         }
     }
 
+    void newShape() {
+        MoveStage result = grid.newShape(renderer.shapeManager);
+        if (result == MoveStage.FAILED) {
+            running = false;
+            log.info("GAME ENDED");
+        }
+    }
+
     Rectangle rectFromCords(int x, int y) {
         int offset = 2;
         return new  Rectangle(offset + (x * _gW), offset + (y * _gH), _gW - (offset * 2), _gH - (offset * 2));
@@ -133,19 +149,21 @@ class StateGame extends StateBase {
     void onStateEnter() {
         super.onStateEnter();
         listeners.add(window.onKeyDown.listen((e) {
-            bool placed = false;
-            if (e.keyCode == KeyCode.A || e.keyCode == KeyCode.LEFT) placed = grid.moveCurrentShape(-1, 0);
-            if (e.keyCode == KeyCode.D || e.keyCode == KeyCode.RIGHT) placed = grid.moveCurrentShape(1, 0);
-            if (e.keyCode == KeyCode.S || e.keyCode == KeyCode.DOWN) placed = grid.moveCurrentShape(0, 1);
-            if (e.keyCode == KeyCode.W || e.keyCode == KeyCode.UP) grid.rotateShape();
+            MoveStage result = MoveStage.FAILED;
+            if (e.keyCode == KeyCode.A || e.keyCode == KeyCode.LEFT) result = grid.moveCurrentShape(-1, 0);
+            if (e.keyCode == KeyCode.D || e.keyCode == KeyCode.RIGHT) result = grid.moveCurrentShape(1, 0);
+            if (e.keyCode == KeyCode.S || e.keyCode == KeyCode.DOWN) result = grid.moveCurrentShape(0, 1);
+            if (e.keyCode == KeyCode.W || e.keyCode == KeyCode.UP) result = grid.rotateShape();
 
-            if (placed) {
-                if (time < 0.5) _time = 0.8;
-                else _time += 0.25;
+            if (result != MoveStage.FAILED) {
+                if (result == MoveStage.MOVED) {
+                    if (time < 0.5) _time = 0.8;
+                    else _time += 0.25;
+                }
             }
         }));
         running = true;
-        grid.newShape();
+        newShape();
     }
 
     bool get running => _running;

@@ -1,5 +1,9 @@
 part of dartris;
 
+enum MoveStage {
+    FAILED, SPAWN, ROTATED, MOVED
+}
+
 class Grid {
     static const int width = 10, height = 16;
 
@@ -19,19 +23,11 @@ class Grid {
         Tile.newFromRGB(0, 255, 0);
         Tile.newFromRGB(0, 0, 255);
         Tile.newFromRGB(255, 0, 255);
-
-        new Shape([0x0F00, 0x2222, 0x00F0, 0x4444]);
-        new Shape([0x44C0, 0x8E00, 0x6440, 0x0E20]);
-        new Shape([0x4460, 0x0E80, 0xC440, 0x2E00]);
-        new Shape([0xCC00, 0xCC00, 0xCC00, 0xCC00]);
-        new Shape([0x06C0, 0x8C40, 0x6C00, 0x4620]);
-        new Shape([0x0E40, 0x4C40, 0x4E00, 0x4640]);
-        new Shape([0x0C60, 0x4C80, 0xC600, 0x2640]);
     }
 
-    void newShape() {
+    MoveStage newShape(ShapeManager manager) {
         _shapePos = null;
-        Shape shape = _currentShape = Shape.randomShape();
+        Shape shape = _currentShape = manager.randomShape();
         int tile = Tile.indexOf(Tile.randomTile());
 
         int startX = (Shape.width ~/ 2) + random.nextInt(width - Shape.width);
@@ -41,6 +37,11 @@ class Grid {
         Array2d<int> data = shape.getAsRotation(_currentShapeRot);
 
         List<Point> positions = new List<Point>();
+        bool failed = false;
+        positions.forEach((p) {
+            if (array[p.x][p.y] != null) failed = true;
+        });
+        if (failed) return MoveStage.FAILED;
         for (int x = 0; x < Shape.width; x++) {
             for (int y = 0; y < Shape.height; y++) {
                 if (data[x][y] > 0) {
@@ -50,6 +51,7 @@ class Grid {
             }
         }
         _shapePos = new ShapePosition(new Point(startX, startY), positions);
+        return MoveStage.SPAWN;
     }
 
     void checkForRow() {
@@ -62,7 +64,7 @@ class Grid {
         }
     }
 
-    void rotateShape() {
+    MoveStage rotateShape() {
         int rotation = _currentShapeRot + 1;
         if (rotation >= 4) rotation = 0;
         Array2d<int> newData = _currentShape.getAsRotation(rotation);
@@ -74,7 +76,7 @@ class Grid {
                 if (c.y + y >= height) failed = true;
                 if (c.x + x < 0 || c.x + x >= width) failed = true;
                 if (!failed) {
-                    if (array[c.x + x][c.x + y] != null) {
+                    if (array[c.x + x][c.y + y] != null) {
                         bool same = false;
                         oldData.forEach((p) {
                             if (p.x == c.x + x && p.y == c.y + y) same = true;
@@ -85,25 +87,25 @@ class Grid {
                 }
             }
         }
-        if (!failed) {
-            _currentShapeRot = rotation;
-            Point first = _shapePos.positions.first;
-            int tile = array[first.x][first.y];
-            _shapePos.positions.forEach((p) => array[p.x][p.y] = null);
-            int index = 0;
+        if (failed) return MoveStage.FAILED;
 
-            for (int x = 0; x < newData.width; x++) {
-                for (int y = 0; y < newData.height; y++) {
-                    if (newData[x][y] > 0) {
-                        array[c.x + x][c.y + y] = tile;
-                        _shapePos.positions[index++] = new Point(c.x + x, c.y + y);
-                    }
+        _currentShapeRot = rotation;
+        Point first = _shapePos.positions.first;
+        int tile = array[first.x][first.y];
+        _shapePos.positions.forEach((p) => array[p.x][p.y] = null);
+        int index = 0;
+        for (int x = 0; x < newData.width; x++) {
+            for (int y = 0; y < newData.height; y++) {
+                if (newData[x][y] > 0) {
+                    array[c.x + x][c.y + y] = tile;
+                    _shapePos.positions[index++] = new Point(c.x + x, c.y + y);
                 }
             }
         }
+        return MoveStage.ROTATED;
     }
 
-    bool moveCurrentShape(int xOffset, int yOffset) {
+    MoveStage moveCurrentShape(int xOffset, int yOffset) {
         bool failed = false;
         bool spawn = false;
         List<Point> currentShape = _shapePos.positions;
@@ -124,21 +126,28 @@ class Grid {
             }
             if (failed) break;
         }
-        if (!failed) {
-            Point first = currentShape.first;
-            int tile = array[first.x][first.y];
-            currentShape.forEach((p) => array[p.x][p.y] = null);
-            for (int i = 0; i < currentShape.length; i++) {
-                Point p = currentShape[i];
-                Point n = new Point(p.x + xOffset, p.y + yOffset);
-                array[n.x][n.y] = tile;
-                currentShape[i] = n;
-            }
-            _shapePos.positions = currentShape;
-            Point c = _shapePos.corner;
-            _shapePos.corner = new Point(c.x + xOffset, c.y + yOffset);
+
+        if (failed) {
+            if (spawn) return MoveStage.SPAWN;
+            return MoveStage.FAILED;
         }
-        return spawn;
+
+        Point first = currentShape.first;
+        int tile = array[first.x][first.y];
+        currentShape.forEach((p) => array[p.x][p.y] = null);
+        for (int i = 0; i < currentShape.length; i++) {
+            Point p = currentShape[i];
+            Point n = new Point(p.x + xOffset, p.y + yOffset);
+            array[n.x][n.y] = tile;
+            currentShape[i] = n;
+        }
+        _shapePos.positions = currentShape;
+        Point c = _shapePos.corner;
+        _shapePos.corner = new Point(c.x + xOffset, c.y + yOffset);
+
+        if (spawn) return MoveStage.SPAWN;
+        else return MoveStage.MOVED;
+
     }
 
     void drop({int row : (height - 1)}) {
@@ -188,61 +197,4 @@ class Tile {
     }
 
     Color get color => _color;
-}
-
-class Shape {
-
-    static List<Shape> shapes = new List<Shape>();
-
-    static Shape fromIndex(int index) {
-        if (index < 0 || index >= Shape.shapes.length) return null;
-        return Shape.shapes[index];
-    }
-
-    static Shape randomShape() {
-        return Shape.fromIndex(Grid.random.nextInt(Shape.shapes.length));
-    }
-
-    static const width = 4, height = 4;
-
-    static final List<Object> masks = [0xF000, 0x0F00, 0x00F0, 0x000F];
-    static final List<int> shift = [12, 8, 4, 0];
-
-    List<Object> _bits;
-
-    Shape(this._bits) {
-        Shape.shapes.add(this);
-    }
-
-    Array2d<int> getAsRotation(int rotation) {
-        Array2d<int> data = new Array2d<int>(width, height, defaultValue: 0);
-        for (int y = 0; y < height; y++) {
-            List<int> row = Util.codeToList(_bits[rotation], masks[y], shift[y]);
-            for (int x = 0; x < width; x++) {
-                data[x][y] = row[x];
-            }
-        }
-        return data;
-    }
-
-    List<Object> get bits => _bits;
-}
-
-class ShapePosition {
-    Point _cornerPos;
-    List<Point> _currentShapePos;
-
-    ShapePosition(this._cornerPos, this._currentShapePos);
-
-    List<Point> get positions => _currentShapePos;
-
-    void set positions(List<Point> position) {
-        _currentShapePos = position;
-    }
-
-    Point get corner => _cornerPos;
-
-    void set corner(Point corner) {
-        _cornerPos = corner;
-    }
 }

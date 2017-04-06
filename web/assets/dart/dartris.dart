@@ -9,6 +9,7 @@ import 'package:color/color.dart';
 
 part 'game.dart';
 part 'grid.dart';
+part 'shape.dart';
 part 'util.dart';
 
 final Logger log = new Logger("Dartris");
