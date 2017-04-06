@@ -167,11 +167,14 @@ class StateGame extends StateBase {
         }));
         running = true;
         newShape();
+        score = 0;
     }
 
     int get score => _score;
     void set score(int score) {
         _score = score;
+
+        querySelector('#score').text = score.toString().padLeft(3, "0");
     }
 
     bool get running => _running;

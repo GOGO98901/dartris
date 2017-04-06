@@ -30,7 +30,7 @@ class Grid {
         Shape shape = _currentShape = manager.randomShape();
         int tile = Tile.indexOf(Tile.randomTile());
 
-        int startX = (Shape.width ~/ 2) + random.nextInt(width - Shape.width);
+        int startX = ((Shape.width * 1.5) ~/ 2) + random.nextInt(width - (Shape.width * 1.5));
         int startY = 0;
 
         _currentShapeRot = random.nextInt(4);

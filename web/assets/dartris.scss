@@ -30,17 +30,37 @@ html, body {
 body.wrapper {
     text-align: center;
     padding: 1.1em;
-    canvas {
-        display: block;
-        width: $canvas-width;
-        height: $canvas-height;
-        margin: auto;
-		padding: 0.4em;
-        vertical-align: middle;
-        background-color: lighten($background-color, 20%);
-        border-radius: 6px;
-        @include box-shadow(0, 0, 10px, rgba(0, 0, 0, 0.75));
-    }
+	.panel {
+		display: block;
+		margin: auto;
+		.info, canvas {
+			margin: 0.2em;
+			padding: 0.4em;
+	        vertical-align: middle;
+	        background-color: lighten($background-color, 20%);
+	        border-radius: 6px;
+	        @include box-shadow(0, 0, 10px, rgba(0, 0, 0, 0.75));
+		}
+		.info {
+			display: inline-block;
+			width: 200px;
+			height: 200px;
+			margin: 1em;
+			font-size: 1.5em;
+			span {
+				&.title {
+					display: block;
+					font-family: $font-palanquin;
+					font-size: 2.5em;
+				}
+			}
+		}
+	    canvas {
+	        display: inline-block;
+	        width: $canvas-width;
+	        height: $canvas-height;
+	    }
+	}
     footer {
         position: fixed;
         bottom: 1em;
