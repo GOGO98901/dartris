@@ -1,7 +1,7 @@
 part of dartris;
 
-enum MoveStage {
-    FAILED, SPAWN, ROTATED, MOVED
+enum ShapeResult {
+    FAILED, SPAWN, ROTATED, MOVED, ROW
 }
 
 class Grid {
@@ -25,7 +25,7 @@ class Grid {
         Tile.newFromRGB(255, 0, 255);
     }
 
-    MoveStage newShape(ShapeManager manager) {
+    ShapeResult newShape(ShapeManager manager) {
         _shapePos = null;
         Shape shape = _currentShape = manager.randomShape();
         int tile = Tile.indexOf(Tile.randomTile());
@@ -41,7 +41,7 @@ class Grid {
         positions.forEach((p) {
             if (array[p.x][p.y] != null) failed = true;
         });
-        if (failed) return MoveStage.FAILED;
+        if (failed) return ShapeResult.FAILED;
         for (int x = 0; x < Shape.width; x++) {
             for (int y = 0; y < Shape.height; y++) {
                 if (data[x][y] > 0) {
@@ -51,20 +51,24 @@ class Grid {
             }
         }
         _shapePos = new ShapePosition(new Point(startX, startY), positions);
-        return MoveStage.SPAWN;
+        return ShapeResult.SPAWN;
     }
 
-    void checkForRow() {
+    ShapeResult checkForRow() {
         for (int y = 0; y < height; y++) {
             bool row = true;
             for (int x = 0; x < width; x++) {
                 if (array[x][y] == null) row = false;
             }
-            if (row) drop(row: y);
+            if (row) {
+                drop(row: y);
+                return ShapeResult.ROW;
+            }
         }
+        return null;
     }
 
-    MoveStage rotateShape() {
+    ShapeResult rotateShape() {
         int rotation = _currentShapeRot + 1;
         if (rotation >= 4) rotation = 0;
         Array2d<int> newData = _currentShape.getAsRotation(rotation);
@@ -87,7 +91,7 @@ class Grid {
                 }
             }
         }
-        if (failed) return MoveStage.FAILED;
+        if (failed) return ShapeResult.FAILED;
 
         _currentShapeRot = rotation;
         Point first = _shapePos.positions.first;
@@ -102,10 +106,10 @@ class Grid {
                 }
             }
         }
-        return MoveStage.ROTATED;
+        return ShapeResult.ROTATED;
     }
 
-    MoveStage moveCurrentShape(int xOffset, int yOffset) {
+    ShapeResult moveCurrentShape(int xOffset, int yOffset) {
         bool failed = false;
         bool spawn = false;
         List<Point> currentShape = _shapePos.positions;
@@ -128,8 +132,8 @@ class Grid {
         }
 
         if (failed) {
-            if (spawn) return MoveStage.SPAWN;
-            return MoveStage.FAILED;
+            if (spawn) return ShapeResult.SPAWN;
+            return ShapeResult.FAILED;
         }
 
         Point first = currentShape.first;
@@ -145,8 +149,8 @@ class Grid {
         Point c = _shapePos.corner;
         _shapePos.corner = new Point(c.x + xOffset, c.y + yOffset);
 
-        if (spawn) return MoveStage.SPAWN;
-        else return MoveStage.MOVED;
+        if (spawn) return ShapeResult.SPAWN;
+        else return ShapeResult.MOVED;
 
     }
 

@@ -92,6 +92,7 @@ class StateGame extends StateBase {
     bool _running = false;
 
     double _time = 0.0;
+    int _score = 0;
 
     StateGame(final GameRenderer renderer) : super(renderer) {
         _grid = new Grid();
@@ -104,10 +105,9 @@ class StateGame extends StateBase {
             _time += elapsed;
             if (time > 1) {
                 _time = 0.0;
-                MoveStage result = grid.moveCurrentShape(0, 1);
-                log.info(result);
-                if (result == MoveStage.SPAWN) {
-                    grid.checkForRow();
+                ShapeResult result = grid.moveCurrentShape(0, 1);
+                if (result == ShapeResult.SPAWN) {
+                    if (grid.checkForRow() == ShapeResult.ROW) score += 100;
                     newShape();
                 }
             }
@@ -134,10 +134,12 @@ class StateGame extends StateBase {
     }
 
     void newShape() {
-        MoveStage result = grid.newShape(renderer.shapeManager);
-        if (result == MoveStage.FAILED) {
+        ShapeResult result = grid.newShape(renderer.shapeManager);
+        if (result == ShapeResult.FAILED) {
             running = false;
             log.info("GAME ENDED");
+        } else if (result == ShapeResult.SPAWN) {
+            score += 10;
         }
     }
 
@@ -149,14 +151,15 @@ class StateGame extends StateBase {
     void onStateEnter() {
         super.onStateEnter();
         listeners.add(window.onKeyDown.listen((e) {
-            MoveStage result = MoveStage.FAILED;
+            ShapeResult result = ShapeResult.FAILED;
             if (e.keyCode == KeyCode.A || e.keyCode == KeyCode.LEFT) result = grid.moveCurrentShape(-1, 0);
             if (e.keyCode == KeyCode.D || e.keyCode == KeyCode.RIGHT) result = grid.moveCurrentShape(1, 0);
             if (e.keyCode == KeyCode.S || e.keyCode == KeyCode.DOWN) result = grid.moveCurrentShape(0, 1);
             if (e.keyCode == KeyCode.W || e.keyCode == KeyCode.UP) result = grid.rotateShape();
 
-            if (result != MoveStage.FAILED) {
-                if (result == MoveStage.MOVED) {
+            if (result != ShapeResult.FAILED) {
+                e.preventDefault();
+                if (result == ShapeResult.MOVED) {
                     if (time < 0.5) _time = 0.8;
                     else _time += 0.25;
                 }
@@ -164,6 +167,11 @@ class StateGame extends StateBase {
         }));
         running = true;
         newShape();
+    }
+
+    int get score => _score;
+    void set score(int score) {
+        _score = score;
     }
 
     bool get running => _running;
