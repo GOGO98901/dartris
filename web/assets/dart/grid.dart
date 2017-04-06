@@ -85,7 +85,6 @@ class Grid {
                 }
             }
         }
-        log.info(failed);
         if (!failed) {
             _currentShapeRot = rotation;
             Point first = _shapePos.positions.first;
